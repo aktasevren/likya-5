@@ -91,9 +91,15 @@ export default function Home() {
 
           // Harita merkezini ve zoom seviyesini ayarla
           if (points.length > 0) {
-            const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
-            const center = bounds.getCenter();
-            setMapCenter([center.lat, center.lng]);
+            const minLat = Math.min(...points.map(p => p.lat));
+            const maxLat = Math.max(...points.map(p => p.lat));
+            const minLng = Math.min(...points.map(p => p.lng));
+            const maxLng = Math.max(...points.map(p => p.lng));
+            
+            const centerLat = (minLat + maxLat) / 2;
+            const centerLng = (minLng + maxLng) / 2;
+            
+            setMapCenter([centerLat, centerLng]);
             setMapZoom(12);
           }
         }
