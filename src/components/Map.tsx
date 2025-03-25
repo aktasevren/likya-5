@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
+import type { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 
 interface TrackPoint {
   name: string;
@@ -19,11 +20,10 @@ interface MapProps {
 }
 
 export default function Map({ center, zoom, trackData }: MapProps) {
-  const [MapComponent, setMapComponent] = useState<any>(null);
-  const [TileLayerComponent, setTileLayerComponent] = useState<any>(null);
-  const [PolylineComponent, setPolylineComponent] = useState<any>(null);
-  const [useMapHook, setUseMapHook] = useState<any>(null);
-  const [Leaflet, setLeaflet] = useState<any>(null);
+  const [MapComponent, setMapComponent] = useState<typeof MapContainer | null>(null);
+  const [TileLayerComponent, setTileLayerComponent] = useState<typeof TileLayer | null>(null);
+  const [PolylineComponent, setPolylineComponent] = useState<typeof Polyline | null>(null);
+  const [useMapHook, setUseMapHook] = useState<typeof useMap | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,6 @@ export default function Map({ center, zoom, trackData }: MapProps) {
       const { MapContainer, TileLayer, Polyline, useMap } = await import('react-leaflet');
       await import('leaflet/dist/leaflet.css');
 
-      setLeaflet(L);
       setMapComponent(MapContainer);
       setTileLayerComponent(TileLayer);
       setPolylineComponent(Polyline);
