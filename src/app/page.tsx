@@ -1,7 +1,7 @@
 'use client';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -28,6 +28,23 @@ export default function Home() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([36.2, 29.6]); // Kaş'ın yaklaşık koordinatları
   const [mapZoom, setMapZoom] = useState(12);
 
+  // İki nokta arasındaki mesafeyi hesaplayan yardımcı fonksiyon
+  const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Dünya'nın yarıçapı (km)
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }, []);
+
+  const toRad = (value: number): number => {
+    return value * Math.PI / 180;
+  };
+
   useEffect(() => {
     const fetchGPX = async () => {
       try {
@@ -41,7 +58,7 @@ export default function Home() {
           const track = geoJSON.features[0];
           const coordinates = track.geometry.coordinates;
           let totalDistance = 0;
-          let totalTime = 0;
+          const totalTime = 0; // Değişmeyecek değer olduğu için const kullanıyoruz
 
           const points: TrackPoint[] = coordinates.map((coord: number[], index: number) => {
             const [lon, lat, elevation] = coord;
@@ -83,28 +100,11 @@ export default function Home() {
     };
 
     fetchGPX();
-  }, []);
-
-  // İki nokta arasındaki mesafeyi hesaplayan yardımcı fonksiyon
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371; // Dünya'nın yarıçapı (km)
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  const toRad = (value: number): number => {
-    return value * Math.PI / 180;
-  };
+  }, [calculateDistance]);
 
   // Leaflet ikonları için düzeltme
   useEffect(() => {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
       iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',

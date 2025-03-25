@@ -1,7 +1,7 @@
 declare module '@mapbox/togeojson' {
   interface GeoJSONFeature {
     type: string;
-    properties: any;
+    properties: Record<string, string | number | boolean>;
     geometry: {
       type: string;
       coordinates: number[][];
