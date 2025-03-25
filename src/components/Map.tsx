@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
-import type { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 
 interface TrackPoint {
   name: string;
