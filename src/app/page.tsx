@@ -2,10 +2,20 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
+import dynamic from 'next/dynamic';
+import toGeoJSON from '@mapbox/togeojson';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import toGeoJSON from '@mapbox/togeojson';
+
+// Harita bileşenini dinamik olarak yükle
+const MapComponent = dynamic(() => import('../components/MapComponent'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] sm:h-[500px] rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+      <p className="text-gray-500">Harita yükleniyor...</p>
+    </div>
+  ),
+});
 
 interface TrackPoint {
   name: string;
@@ -180,25 +190,11 @@ export default function Home() {
 
           <div className="bg-gray-50 rounded-lg shadow-lg p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-black">Rota Haritası</h2>
-            <div className="h-[400px] sm:h-[500px] rounded-lg overflow-hidden">
-              <MapContainer
-                center={mapCenter}
-                zoom={mapZoom}
-                style={{ height: '100%', width: '100%' }}
-                scrollWheelZoom={true}
-              >
-                <ChangeView center={mapCenter} zoom={mapZoom} />
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <Polyline
-                  positions={trackData.map(point => [point.lat, point.lng])}
-                  color="#8884d8"
-                  weight={3}
-                />
-              </MapContainer>
-            </div>
+            <MapComponent
+              center={mapCenter}
+              zoom={mapZoom}
+              trackData={trackData}
+            />
           </div>
         </div>
       </div>
