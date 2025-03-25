@@ -26,13 +26,6 @@ interface TrackPoint {
   mesafe: number;
 }
 
-// Harita bileşeni için özel hook
-function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
-  const map = useMap();
-  map.setView(center, zoom);
-  return null;
-}
-
 export default function Home() {
   const [trackData, setTrackData] = useState<TrackPoint[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([36.2, 29.6]); // Kaş'ın yaklaşık koordinatları
